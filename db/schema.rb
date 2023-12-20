@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2023_12_19_103627) do
+ActiveRecord::Schema[7.1].define(version: 2023_12_20_094918) do
   create_table "urls", force: :cascade do |t|
     t.text "long_url"
     t.string "short_url"
@@ -18,6 +18,7 @@ ActiveRecord::Schema[7.1].define(version: 2023_12_19_103627) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "sanitize_url"
+    t.string "update_short_url"
     t.index ["user_id"], name: "index_urls_on_user_id"
   end
 

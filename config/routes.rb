@@ -5,5 +5,11 @@ Rails.application.routes.draw do
   # Can be used by load balancers and uptime monitors to verify that the app is live.
  resources :users
   post '/users/login', to: 'users#login'
-  resources :urls, only: [:index, :new, :create, :show]
+
+  resources :urls, only: [:create, :show] do
+     collection do
+       post 'shorten_and_verify'
+       post 'update_shorten'
+     end
+   end
 end

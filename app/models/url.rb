@@ -9,7 +9,7 @@ class Url < ApplicationRecord
   end
 
   def sanitize
-    self.long_url.strip!
+    self.long_url.strip
     self.sanitize_url = "http://" + self.long_url.downcase.gsub(/(https?:\/\/)|(www\.)/, "")
    end
 end
