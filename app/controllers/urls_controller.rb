@@ -1,16 +1,37 @@
 class UrlsController < ApplicationController
 
+  # def create
+  #   @url = current_user.urls.new(url_params)
+  #   @url.short_url =@url.generate_short_url
+  #   @url.long_url = @url.sanitize
+  #   if @url.save
+  #    render json: @url.short_url, status: :created
+  #   else
+  #     render json: { errors: @url.errors.full_messages },
+  #              status: :unprocessable_entity
+  #   end
+  # end
+  
+ 
   def create
     @url = current_user.urls.new(url_params)
-    @url.short_url =@url.generate_short_url
     @url.long_url = @url.sanitize
+
+    # Extracting schema and subdomain from the long URL
+    uri = URI.parse(@url.long_url)
+    schema_and_subdomain = "#{uri.scheme}://#{uri.host}"
+
+    @url.short_url = "#{schema_and_subdomain}/#{@url.generate_short_url}"
+
     if @url.save
-     render json: @url.short_url, status: :created
+      render json: @url.short_url, status: :created
     else
       render json: { errors: @url.errors.full_messages },
-               status: :unprocessable_entity
+              status: :unprocessable_entity
     end
   end
+  
+  
 
   def show
     @url = Url.find_by_id(params[:id])
@@ -22,13 +43,33 @@ class UrlsController < ApplicationController
     if short_url.present?
       existing_url = Url.find_by_short_url(short_url)
       if existing_url
-        redirect_to existing_url.long_url
-
+        redirect_to existing_url.long_ur
       else
         render json: { error: 'Invalid short URL' }, status: :unprocessable_entity
       end
     end
   end
+
+
+  # def update_shorten
+  #   new_short = params[:update_short_url]
+  #   short_url = params[:short_url]
+  #   if new_short.present? && short_url.present?
+  #     url = Url.find_by_short_url(short_url)
+  #     if url
+  #       url.short_url = new_short
+  #       if url.save
+  #         render json: { short_url: url.short_url, update_short_url: new_short }, status: :ok
+  #       else
+  #         render json: { errors: url.errors.full_messages }, status: :unprocessable_entity
+  #       end
+  #     else
+  #       render json: { error: 'URL not found' }, status: :not_found
+  #     end
+  #   else
+  #     render json: { error: 'Invalid short URL or missing parameters' }, status: :unprocessable_entity
+  #   end
+  # end
 
 
   def update_shorten
@@ -37,7 +78,11 @@ class UrlsController < ApplicationController
     if new_short.present? && short_url.present?
       url = Url.find_by_short_url(short_url)
       if url
-        url.short_url = new_short
+        # Reusing logic from create to update short URL
+        uri = URI.parse(url.long_url)
+        schema_and_subdomain = "#{uri.scheme}://#{uri.host}"
+        url.short_url = "#{schema_and_subdomain}/#{new_short}"
+
         if url.save
           render json: { short_url: url.short_url, update_short_url: new_short }, status: :ok
         else
@@ -50,7 +95,6 @@ class UrlsController < ApplicationController
       render json: { error: 'Invalid short URL or missing parameters' }, status: :unprocessable_entity
     end
   end
-
 
   private
 
